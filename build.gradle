@@ -1,0 +1,27 @@
+plugins {
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0.0'
+sourceCompatibility = '21'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.github.penggle:kaptcha:2.3.2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// إعدادات إضافية لـ JDK 21
+tasks.named('compileJava') {
+    options.compilerArgs += ['--enable-preview']
+}

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Verification Required</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --danger: #e63946;
+            --warning: #fca311;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .captcha-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .captcha-image-container {
+            margin: 15px 0;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+        }
+        
+        .captcha-image {
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #333;
+            padding: 10px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 5px;
+            user-select: none;
+        }
+        
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading i {
+            animation: spin 1.5s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .refresh-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+        
+        .refresh-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .verify-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .verify-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .error {
+            background-color: #ffe6e6;
+            color: #d00000;
+            border: 1px solid #ffb3b3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .success {
+            background-color: #e6f7e6;
+            color: #2e7d32;
+            border: 1px solid #b3e6b3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .content-reveal {
+            margin-top: 30px;
+            animation: fadeIn 1s;
+            text-align: center;
+        }
+        
+        .content-reveal img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .congrats {
+            font-size: 1.3rem;
+            color: var(--success);
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-shield"></i> Human Verification Required</h1>
+            <p>Please solve the CAPTCHA below to prove you're human:</p>
+        </div>
+        
+        <div class="content">
+            <div class="captcha-container">
+                <div class="captcha-image-container" id="captchaImageContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Loading CAPTCHA...
+                    </div>
+                </div>
+                
+                <button class="refresh-btn" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh CAPTCHA
+                </button>
+                
+                <div class="form-group">
+                    <label for="captchaInput">Enter the text you see above:</label>
+                    <input type="text" id="captchaInput" placeholder="Type the CAPTCHA text here">
+                </div>
+                
+                <button class="verify-btn" id="verifyBtn">
+                    <i class="fas fa-check-circle"></i> Verify
+                </button>
+                
+                <div class="message error" id="message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Error loading CAPTCHA. Please try again.</span>
+                </div>
+            </div>
+            
+            <div id="contentReveal" class="hidden">
+                <div class="message success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verification Successful! Thank you for confirming you're human.</span>
+                </div>
+                
+                <div class="content-reveal">
+                    <p class="congrats">Congratulations! You've successfully passed the CAPTCHA test.</p>
+                    <img id="rewardImage" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Beautiful mountain landscape">
+                    <p>You now have full access to our website. Enjoy your experience!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Protected by CAPTCHA verification • Secure Connection <i class="fas fa-lock"></i></p>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const captchaImageContainer = document.getElementById('captchaImageContainer');
+        const captchaInput = document.getElementById('captchaInput');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const messageDiv = document.getElementById('message');
+        const contentRevealDiv = document.getElementById('contentReveal');
+        const rewardImage = document.getElementById('rewardImage');
+        
+        let currentCaptchaText = '';
+        
+        // Generate a random CAPTCHA text
+        function generateCaptchaText() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        // Create a CAPTCHA image with visual distortion
+        function createCaptchaImage(text) {
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            canvas.width = 220;
+            canvas.height = 80;
+            const ctx = canvas.getContext('2d');
+            
+            // Fill background with gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#f0f0f0');
+            gradient.addColorStop(1, '#e0e0e0');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add noise (dots)
+            for (let i = 0; i < 150; i++) {
+                ctx.fillStyle = `rgba(${Math.random() * 100}, ${Math.random() * 100}, ${Math.random() * 100}, 0.2)`;
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 2,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+            
+            // Add lines for more distortion
+            for (let i = 0; i < 8; i++) {
+                ctx.strokeStyle = `rgba(${Math.random() * 100}, ${Math.random() * 100}, ${Math.random() * 100}, 0.3)`;
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.stroke();
+            }
+            
+            // Draw text with distortion
+            ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = '#333';
+            
+            // Add text with slight individual character distortion
+            for (let i = 0; i < text.length; i++) {
+                const x = 20 + i * 30;
+                const y = 50 + Math.random() * 10 - 5;
+                const rotation = Math.random() * 0.1 - 0.05;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rotation);
+                ctx.fillText(text[i], 0, 0);
+                ctx.restore();
+            }
+            
+            return canvas.toDataURL();
+        }
+        
+        // Load a new CAPTCHA
+        function loadNewCaptcha() {
+            try {
+                messageDiv.style.display = 'none';
+                currentCaptchaText = generateCaptchaText();
+                
+                // Create and display the CAPTCHA image
+                const captchaImageUrl = createCaptchaImage(currentCaptchaText);
+                captchaImageContainer.innerHTML = `<img class="captcha-image" src="${captchaImageUrl}" alt="CAPTCHA Image">`;
+                
+                // Clear input field
+                captchaInput.value = '';
+                
+            } catch (error) {
+                console.error('Error loading CAPTCHA:', error);
+                showMessage('Error loading CAPTCHA. Please try again.', 'error');
+            }
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            messageDiv.querySelector('span').textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'flex';
+        }
+        
+        // Verify the CAPTCHA
+        function verifyCaptcha() {
+            const userAnswer = captchaInput.value.trim();
+            
+            if (!userAnswer) {
+                showMessage('Please enter the CAPTCHA text.', 'error');
+                return;
+            }
+            
+            if (userAnswer.toLowerCase() === currentCaptchaText.toLowerCase()) {
+                // Show the hidden content
+                contentRevealDiv.classList.remove('hidden');
+                // Hide the CAPTCHA container
+                document.querySelector('.captcha-container').classList.add('hidden');
+                
+            } else {
+                showMessage('Incorrect CAPTCHA. Please try again.', 'error');
+                // Load a new CAPTCHA after failed attempt
+                loadNewCaptcha();
+            }
+        }
+        
+        // Event listeners
+        verifyBtn.addEventListener('click', verifyCaptcha);
+        refreshBtn.addEventListener('click', loadNewCaptcha);
+        
+        // Allow pressing Enter to submit
+        captchaInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                verifyCaptcha();
+            }
+        });
+        
+        // Load initial CAPTCHA when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading delay
+            setTimeout(loadNewCaptcha, 1000);
+        });
+    </script>
+</body>
+</html>
