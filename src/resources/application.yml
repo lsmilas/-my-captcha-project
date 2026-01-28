@@ -1,3 +1,4 @@
+# kasse leila 
 server:
   port: 8080
   servlet:
@@ -13,8 +14,9 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
-# إعدادات مخصصة للـ CAPTCHA
+# إعدادات مخصصة للـ CAPTCHA 
 app:
   captcha:
     expiration-time: 600000  # 10 دقائق بالمللي ثانية
+
     cleanup-interval: 600000 # 10 دقائق
